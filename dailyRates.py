@@ -6,7 +6,6 @@ import requests
 import time
 import shutil
 import sys
-#import unicodedata
 
 import myGlobals as mg
 import httpHeaders as hh
@@ -32,35 +31,92 @@ class color:
 
 # Dictionary containing the HTTP requests to send to the server
 
-#https://www.mcb.mu/fr/handler/GetForexData?fxc=EUR&_=1671555466629
+#
+MCB_FOREX_DATA_URL = 'https://mcb.mu/webapi/mcb/getforexdata?currencyCode=EUR&baseCurrency=MUR&_=1723113609370'
 
-MCB_URL = 'https://www.mcb.mu/fr/personal/download-daily-rates'
+MCB_FOREX_DATA_EXCEL_URL = 'https://mcb.mu/webapi/mcb/ForexDataExcel'
+
+
+#PAYLOAD_DATA = {"StartDate":"2024-08-06","EndDate":"2024-08-06","CurrencyCode":"EUR","BaseCurrency":"MUR"}
 
 MCB_DAILY_RATES_HTTP_REQUESTS = {
-    "dailyRatesForEuro" : {
-        "name" : "dailyRatesForEuro",
-        "info" : "Connect to MCB.mu and get daily rates for Euro currency",
+    
+    "ForexData" : {
+        "name" : "ForexData",
+        "info" : "Connect to MCB.mu and get daily rates for Euro currency (JSON)",
         "rqst" : {
-            "type" : 'POST',
-            "url"  : MCB_URL,
-            "headers" : {},
-            "payload_type" : 'MULTIPART_FORM_DATA',
-            "payload_data" : {
-                'forexCurrency': (None, 'EUR'),
-                'forexDateStart': (None, 'PLACEHOLDER-FOR-START-DATE'),  # 19/12/2022
-                'forexDateEnd': (None, 'PLACEHOLDER-FOR-END-DATE'),    # 19/12/2022
-                '__RequestVerificationToken': (None, 'RLOHjJ_oH627NJuu1v6VqTGvrSNNV-q5X0PH5fhUexGCyl0clAurWm0byFPSMLLCsFGixmBTBqB2KJ6i1ALum6XeEjRZSesIDq_yyasBmTs1'),
-                'tprt': (None, '2FAEB4E8743372FCE42814E9A6DF587B29B7907D5B488599FC9BFB4BC71132104CD4D509BB480A16CC14F25F9AA42BE2FD1E1AE322F7802814335494FA64760E5C1CB2386E8F1A8D01D4FC22BC5A9AD854FF4E669C9D036F98CFD7435BBC4D07D34957F072FC588BB83C0EF88A11CBD871FEA398A66B71CB6D24AB035867F7BBE73A69F862F40A045E04511C6A001A673DFD31E991FCA7536992460D2ABDC416C3E35D6065C0A357621783657131DC69C7974ABFCB37D1051AA4A1A81B53E490'),
-            }
+            "type" : 'GET',
+            "url"  : MCB_FOREX_DATA_URL,
+            "headers" : {
+                "User-Agent"	: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:109.0) Gecko/20100101 Firefox/115.0',
+                "Accept"          : '*/*',
+                "Accept-Encoding" : 'gzip, deflate, br',
+                "Accept-Language" : 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+                "Referer"      : 'https://mcb.mu/tools-calculators/download-daily-rates',
+                "Host"         : 'mcb.mu',
+                "Cache-Control": 'no-cache',
+                "Connection"   : 'keep-alive',
+                "Pragma"       : 'no-cache',
+
+                "Sec-Fetch-Mode" : 'cors',
+                "Sec-Fetch-Site" : 'same-origin',
+                "Sec-Fetch-Dest" : 'empty',
+                
+                "X-Requested-With": 'XMLHttpRequest',
+                "DNT" : '1',
+                "TE" : 'trailers',
+
+                "Cookie" : '_cfuvid=zaDYeVg4cILSM5lPxnwQ.xAEBZNQ6f5f0YtaUg9SME8-1723113481523-0.0.1.1-604800000; sf-data-intell-subject=1722883814318-64bf24ef-d551-4acf-80cf-bc0bded29824; sf-ins-pv-id=4c85df49-2ea6-4dec-8f8f-af91da100c15; sf-prs-ss=638584806145070000; sf-prs-lu=https://mcb.mu/fr/handler/GetForexData?fxc=EUR&_=1671555466629; msd365mkttr=AXXgBpaVy31_rl2u8D3xLHCIFZYOLZfDnybD3RzA; msd365mkttrs=WyTMHLjU; _gcl_au=1.1.1067056041.1722883816; _ga_10LP56Z7PK=GS1.1.1723113481.4.1.1723113612.32.0.0; _ga=GA1.1.2019356087.1722883818; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Aug+08+2024+14%3A40%3A12+GMT%2B0400+(heure+normale+de+Maurice)&version=6.36.0&isIABGlobal=false&hosts=&genVendors=&consentId=ef6a0873-91a9-4870-9316-de8fb2376623&interactionCount=1&landingPath=NotLandingPage&groups=C0003%3A0%2CC0004%3A0%2CC0002%3A0%2CC0001%3A1&geolocation=FR%3BPAC&AwaitingReconsent=false; OptanonAlertBoxClosed=2024-08-05T18:50:25.894Z; sf-ins-ssid=1723113484510-85a72bd0-e758-4640-a65b-66d0fbbcad75',
+            },
         },
         "resp" : {
             "code" : 200,
-            "dumpResponse" : 'foo.xlsx',
-            # If Content-Disposition is present in response header, use it to get output filename
-            "useContentDisposition" : True,
+            "dumpResponse" : 'ForexData.json',
             "updateCookies" : False,
         },
-        "returnText" : False,
+        "returnText" : True,
+    },
+    
+   "ForexDataExcel" : {
+        "name" : "ForexDataExcel",
+        "info" : "Connect to MCB.mu and get daily rates for Euro currency (Excel sheet)",
+        "rqst" : {
+            "type" : 'POST',
+            "url"  : MCB_FOREX_DATA_EXCEL_URL,
+            "payload_data" : 'PLACEHOLDER-FOR-PAYLOAD_DATA', # Updated at run time
+            "headers" : {
+                "Accept"          : '*/*',
+                "Accept-Encoding" : 'gzip, deflate, br',
+                "Accept-Language" : 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+
+                "Referer"      : 'https://mcb.mu/tools-calculators/download-daily-rates',
+                "Host"         : 'mcb.mu',
+                "Origin"       : 'https://mcb.mu',
+                "Cache-Control": 'no-cache',
+                "Connection"   : 'keep-alive',
+                "Pragma"       : 'no-cache',
+
+                "Content-Length" : 'PUT-PAYLOAD-LENGTH-HERE', #91
+                "Content-Type"   : 'application/json', #;charset=UTF-8',
+
+                "User-Agent"     : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:109.0) Gecko/20100101 Firefox/115.0',
+
+                "Sec-Fetch-Mode" : 'cors',
+                "Sec-Fetch-Site" : 'same-origin',
+                "Sec-Fetch-Dest" : 'empty',
+                
+                "X-Requested-With": 'XMLHttpRequest',
+                "DNT" : '1',
+
+                "Cookie" : '_cfuvid=zaDYeVg4cILSM5lPxnwQ.xAEBZNQ6f5f0YtaUg9SME8-1723113481523-0.0.1.1-604800000; sf-data-intell-subject=1722883814318-64bf24ef-d551-4acf-80cf-bc0bded29824; sf-ins-pv-id=4c85df49-2ea6-4dec-8f8f-af91da100c15; sf-prs-ss=638584806145070000; sf-prs-lu=https://mcb.mu/fr/handler/GetForexData?fxc=EUR&_=1671555466629; msd365mkttr=AXXgBpaVy31_rl2u8D3xLHCIFZYOLZfDnybD3RzA; msd365mkttrs=WyTMHLjU; _gcl_au=1.1.1067056041.1722883816; _ga_10LP56Z7PK=GS1.1.1723113481.4.1.1723113612.32.0.0; _ga=GA1.1.2019356087.1722883818; OptanonConsent=isGpcEnabled=0&datestamp=Thu+Aug+08+2024+14%3A40%3A12+GMT%2B0400+(heure+normale+de+Maurice)&version=6.36.0&isIABGlobal=false&hosts=&genVendors=&consentId=ef6a0873-91a9-4870-9316-de8fb2376623&interactionCount=1&landingPath=NotLandingPage&groups=C0003%3A0%2CC0004%3A0%2CC0002%3A0%2CC0001%3A1&geolocation=FR%3BPAC&AwaitingReconsent=false; OptanonAlertBoxClosed=2024-08-05T18:50:25.894Z; sf-ins-ssid=1723113484510-85a72bd0-e758-4640-a65b-66d0fbbcad75',
+            },
+        },
+        "resp" : {
+            "code" : 200,
+            "dumpResponse" : 'foo.xlsx', # Updated at run time
+            "updateCookies" : False,
+        },
+        "returnText" : True,
     },
 }
     
@@ -73,18 +129,42 @@ class MCBDailyRates:
         self._cookies = dict()
 
     def getDailyRates(self, forexDate):  # dd/mm/yyyy
-        # Update the 'dailyRatesForEuro' request with the requested date
-        httpRqst = MCB_DAILY_RATES_HTTP_REQUESTS['dailyRatesForEuro']
-        myprint(2, httpRqst)
-        httpRqst['rqst']['payload_data']['forexDateStart'] = (None, forexDate)
-        httpRqst['rqst']['payload_data']['forexDateEnd']   = (None, forexDate)
 
-        dt = datetime.strptime(forexDate,'%d/%m/%Y').strftime('%Y%m%d')
+        # myprint(2, '*** Launching GET HTTP Request: ForexData')
+        
+        # httpRqst = MCB_DAILY_RATES_HTTP_REQUESTS['ForexData']
+        # myprint(2, httpRqst)
+
+        # respText = self._executeRequest(httpRqst)
+        # if 'ErRoR' in respText:
+        #     myprint(1, 'Error retrieving information from server')
+        #     return -1
+
+        myprint(2, '*** Launching POST HTTP Request: ForexDataExcel')
+        
+        httpRqst = MCB_DAILY_RATES_HTTP_REQUESTS['ForexDataExcel']
+        myprint(2, httpRqst)
+
+        dt = datetime.strptime(forexDate,'%d/%m/%Y').strftime('%Y-%m-%d')
+
+        #Initialize payload_data
+        rqstPayloadData = '{"StartDate":"%s","EndDate":"%s","CurrencyCode":"EUR","BaseCurrency":"MUR"}' % (dt, dt)
+        httpRqst['rqst']['payload_data'] = rqstPayloadData
+ 
+        #rqstPayloadData = str(rqstPayloadData).replace(" ", "")
+        myprint(2, rqstPayloadData, len(rqstPayloadData))
+
+        # Update Content-Length header
+        ocl = httpRqst['rqst']["headers"]["Content-Length"]
+        ncl = ocl.replace('PUT-PAYLOAD-LENGTH-HERE', str(len(rqstPayloadData)))
+        httpRqst['rqst']["headers"]["Content-Length"] = ncl
+
+        # Set output filename
         httpRqst['resp']['dumpResponse'] = "%s.xlsx" % (dt)
         
         myprint(2, 'Using HTTP Request:', httpRqst)
-        
-        # Execute request to get the daily rates information
+
+        # Execute request to get the daily rates information in Excel format
         respText = self._executeRequest(httpRqst)
         if 'ErRoR' in respText:
             myprint(1, 'Error retrieving information from server')
@@ -92,11 +172,12 @@ class MCBDailyRates:
 
         # Parse returned information. Create/Update local cache file
         parseDailyRates(httpRqst['resp']['dumpResponse'], dt)
-        if not config.KEEPRESPONSEFILE:
+        if not config.KEEPRESPONSEFILE and not config.DEBUG:
             myprint(1, 'Removing: %s' % (httpRqst['resp']['dumpResponse']))
             os.remove(httpRqst['resp']['dumpResponse'])
-            
+
         return 0
+
         
     # Build a string containing all cookies passed as parameter in a list 
     def _buildCookieString(self, cookieList):
@@ -169,27 +250,34 @@ class MCBDailyRates:
                 myprint(2,'Request Stream:', rqstStream, 'CSV Stream:', csvStream)
                 r = self._session.get(rqstURL, headers=hdrs.headers, stream=rqstStream)
             except requests.exceptions.RequestException as e:
+                print(e)
                 errFlag = True
                 
         elif rqstType == 'POST':
             rqstPayloadData = rqst["rqst"]["payload_data"]
-                
-            if rqst["rqst"]["payload_type"] == 'MULTIPART_FORM_DATA':
-                myprint(2, json.dumps(dict(rqstPayloadData), indent=2))
+            rqstPayloadType = rqst["rqst"]["headers"]["Content-Type"]
+
+            #if rqst["rqst"]["payload_type"] == 'MULTIPART_FORM_DATA':
+            if rqstPayloadType == 'MULTIPART_FORM_DATA':
                 try:
                     r = self._session.post(rqstURL,
                                            headers=hdrs.headers,
                                            files=rqstPayloadData)
                 except requests.exceptions.RequestException as e:
                     errFlag = True
-            else:
-                myprint(2,"payload=%s" % rqstPayloadData)
+            else:  # Assume 'application/json'
+                # Convert rqstPayloadData to a string
+                rqstPayloadData = str(rqstPayloadData).replace(" ", "")
+                myprint(2, rqstPayloadData)
+                myprint(2, len(rqstPayloadData))
+
                 try:
                     r = self._session.post(rqstURL,
                                            headers=hdrs.headers,
                                            data=rqstPayloadData)
                 except requests.exceptions.RequestException as e:
                     errFlag = True
+                    myprint(2, e)
                 
         else:	# OPTIONS
             assert(rqstType == 'OPTIONS')
@@ -218,18 +306,29 @@ class MCBDailyRates:
         fname = None	# Build output filename from response header
 
         try:
-            useContentDisposition = rqst["resp"]["useContentDisposition"]
+            useContentEncoding = r.headers['Content-Encoding']
+        except:
+            myprint(2, 'Content-Encoding header not found in response')
+        else:
+            myprint(2, 'Content-Encoding header found in response:', useContentEncoding)
+            fname = 'out' + '.' + useContentEncoding
+            
+        try:
+            useContentDisposition = r.headers['Content-Disposition']
         except:
             myprint(2, 'Content-Disposition header not found in response')
             # Manually build output filename
-            fname = datetime.datetime.now().strftime("%d%m%Y") + '.xlsx'
+            fname = datetime.now().strftime("%d%m%Y") + '.json'
         else:
             if useContentDisposition:
                 # Example: "Content-Disposition": "attachment;filename=20221221.xlsx",
                 try:
                     cd = r.headers['Content-Disposition']
                 except:
-                    myprint(2, 'No Content-Disposition found in response header')
+                    myprint(2, 'Content-Disposition not found in response header')
+                    #fname = datetime.now().strftime("%d%m%Y") + '.xlsx'
+                    fname = 'out.txt'
+                    #myprint(1, 'Using output filename:', fname)
                 else:
                     for item in cd.split(';'):
                         if item.startswith('filename='):
@@ -240,7 +339,7 @@ class MCBDailyRates:
                     if not fname:
                         myprint(1, 'ERROR while parsing Content-Disposition response header')
                         # Manually build output filename
-                        fname = datetime.datetime.now().strftime("%d%m%Y") + '.xlsx'
+                        fname = datetime.now().strftime("%d%m%Y") + '.xlsx'
 
         try:
             dumpResponse = rqst["resp"]["dumpResponse"]
@@ -249,7 +348,7 @@ class MCBDailyRates:
             pass
         else:
             myprint(1, 'Using output filename:', fname)
-            outputFile = os.path.join(mg.moduleDirPath, fname) #rqst["resp"]["dumpResponse"])
+            outputFile = os.path.join(mg.moduleDirPath, fname)
             myprint(1, 'Using output file path:', outputFile)
 
             # Update the HTTP request with new output file path
@@ -294,22 +393,22 @@ def parseDailyRates(filePath, dt):
     #            cellno += 1
     #    rowno += 1
 
-    myprint(1, 'Date:',ws.cell(row=10, column=11).value, '  ', 'Buying Notes Rate:', ws.cell(row=10, column=7).value)
+    myprint(1, 'Date:',ws.cell(row=10, column=11).value, '  ', 'Buying Notes Rate:', ws.cell(row=10, column=5).value)
 
     currency = ws.cell(row=10, column=2).value		# Currency
     code = ws.cell(row=10, column=3).value		# Code
     ratesDate = ws.cell(row=10, column=11).value	# Rates Date like "21-Dec-2022 08:54"
 
     # BUYING
-    buyingRates = [ws.cell(row=10, column=5).value, # TT
-                   ws.cell(row=10, column=6).value, # TC/DD
-                   ws.cell(row=10, column=7).value  # NOTES
+    buyingRates = [str(ws.cell(row=10, column=5).value), # TT, Used in wire transfer from EUR account
+                   str(ws.cell(row=10, column=6).value), # TC/DD
+                   str(ws.cell(row=10, column=7).value)  # NOTES
     ]
 
     # SELLING
-    sellingRates = [ws.cell(row=10, column=8).value, # TT
-                    ws.cell(row=10, column=9).value, # TC/DD
-                    ws.cell(row=10, column=10).value # NOTES
+    sellingRates = [str(ws.cell(row=10, column=8).value), # TT
+                    str(ws.cell(row=10, column=9).value), # TC/DD
+                    str( ws.cell(row=10, column=10).value) # NOTES
     ]
 
     # Convert ratesDate into a string of form: %Y%m%d
@@ -320,7 +419,7 @@ def parseDailyRates(filePath, dt):
         # If dt is null, we are parsing an existing xlsx input file
         if dt:
             myprint(1, 'Adding null entry to cache')
-            d = dt
+            d = datetime.strptime(dt, '%Y-%m-%d').strftime("%Y%m%d") #dt
             code = 'EUR'
             buyingRates = sellingRates = ['','','']
         else:
@@ -333,7 +432,8 @@ def parseDailyRates(filePath, dt):
         dataCacheDict = dict()
 
     dataCacheDict[d] = (d, code, buyingRates, sellingRates)
-    myprint(1, json.dumps(dataCacheDict, indent=4))
+    #    myprint(2, json.dumps(dataCacheDict, indent=4))
+    myprint(2, d, code, buyingRates, sellingRates)
 
     # Update the data cache file
     dumpJsonToFile(mg.dataCachePath, dataCacheDict)
